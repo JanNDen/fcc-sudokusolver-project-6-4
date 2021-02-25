@@ -4,65 +4,74 @@ const assert = chai.assert;
 const Solver = require("../controllers/sudoku-solver.js");
 let solver;
 
-const { puzzlesAndSolutions } = require("../controllers/puzzle-strings.js");
-
 suite("UnitTests", () => {
+  // Suite setup
   suiteSetup((done) => {
     solver = new Solver();
     done();
   });
 
+  // Variables setup
+  const validPuzzle =
+    "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
+  const validSolution =
+    "769235418851496372432178956174569283395842761628713549283657194516924837947381625";
+  const invalidLengthPuzzle = "..9..5.1.85.4....2432......1";
+  const invalidCharsPuzzle =
+    "abc..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
+
+  // Tests
+
   suite("Function validate()", () => {
     test("Valid Characters, length of 81", (done) => {
-      const validInput =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      assert.isTrue(solver.validate(validInput));
+      assert.isTrue(solver.validate(validPuzzle));
       done();
     });
 
-    // Invalid characters or numbers are not accepted
-    // as valid input for the puzzle grid
     test('Invalid characters (anything other than "1-9" or "."") are not accepted', (done) => {
-      const invalidChars =
-        "..X..5.1.85.4....2432.HI...1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      const error = "Invalid characters in puzzle";
-      assert.equal(solver.validate(invalidChars), error);
+      assert.equal(
+        solver.validate(invalidCharsPuzzle),
+        "Invalid characters in puzzle"
+      );
       done();
     });
 
-    // Puzzles that are not 81 numbers/periods long show the message
     test("Shows an error for puzzles that are not 81 numbers long", (done) => {
-      const shortStr = "83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      const longStr =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6...";
-      const error = "Expected puzzle to be 81 characters long";
-      assert.equal(solver.validate(shortStr), error);
-      assert.equal(solver.validate(longStr), error);
+      assert.equal(
+        solver.validate(invalidLengthPuzzle),
+        "Expected puzzle to be 81 characters long"
+      );
       done();
     });
   });
 
   suite("Function checkRowPlacement()", () => {
     test("Valid placement for a row", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
       const row = 0;
       const col = 0;
       const value = 3;
       assert.isTrue(
-        solver.checkRowPlacement(solver.createPuzzleArr(input), row, col, value)
+        solver.checkRowPlacement(
+          solver.createPuzzleArr(validPuzzle),
+          row,
+          col,
+          value
+        )
       );
       done();
     });
 
     test("Invalid placement for a row", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
       const row = 0;
       const col = 0;
       const value = 9;
       assert.isFalse(
-        solver.checkRowPlacement(solver.createPuzzleArr(input), row, col, value)
+        solver.checkRowPlacement(
+          solver.createPuzzleArr(validPuzzle),
+          row,
+          col,
+          value
+        )
       );
       done();
     });
@@ -70,25 +79,31 @@ suite("UnitTests", () => {
 
   suite("Function checkColPlacement()", () => {
     test("Valid placement for a column", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
       const row = 0;
       const col = 0;
       const value = 3;
       assert.isTrue(
-        solver.checkColPlacement(solver.createPuzzleArr(input), row, col, value)
+        solver.checkColPlacement(
+          solver.createPuzzleArr(validPuzzle),
+          row,
+          col,
+          value
+        )
       );
       done();
     });
 
     test("Invalid placement for a column", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
       const row = 0;
       const col = 0;
-      const value = 9;
-      assert.isTrue(
-        solver.checkColPlacement(solver.createPuzzleArr(input), row, col, value)
+      const value = 8;
+      assert.isFalse(
+        solver.checkColPlacement(
+          solver.createPuzzleArr(validPuzzle),
+          row,
+          col,
+          value
+        )
       );
       done();
     });
@@ -96,14 +111,12 @@ suite("UnitTests", () => {
 
   suite("Function checkRegionPlacement()", () => {
     test("Valid placement for a region", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      const row = 4;
-      const col = 4;
-      const value = 3;
+      const row = 0;
+      const col = 0;
+      const value = 1;
       assert.isTrue(
         solver.checkRegionPlacement(
-          solver.createPuzzleArr(input),
+          solver.createPuzzleArr(validPuzzle),
           row,
           col,
           value
@@ -113,14 +126,12 @@ suite("UnitTests", () => {
     });
 
     test("Invalid placement for a region", (done) => {
-      const input =
-        "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      const row = 4;
-      const col = 4;
-      const value = 7;
+      const row = 0;
+      const col = 0;
+      const value = 8;
       assert.isFalse(
         solver.checkRegionPlacement(
-          solver.createPuzzleArr(input),
+          solver.createPuzzleArr(validPuzzle),
           row,
           col,
           value
@@ -130,28 +141,28 @@ suite("UnitTests", () => {
     });
   });
 
-  suite("Function solvePuzzle()", () => {
-    // Valid complete puzzles pass
+  suite("Function solve()", () => {
     test("Valid puzzles pass", function (done) {
-      let puzzleString = puzzlesAndSolutions[0][0];
-      let solutionString = puzzlesAndSolutions[0][1];
-      assert.equal(solver.solve(puzzleString), solutionString);
+      assert.equal(
+        solver.solve(solver.createPuzzleArr(validSolution)),
+        validSolution
+      );
       done();
     });
 
-    // Invalid complete puzzles fail
     test("Invalid puzzles fail", function (done) {
-      const puzzle = "83.9.....6.62.71...9......1945....4.37.4.3..6..";
-      assert.equal(solver.solve(puzzle), "Puzzle cannot be solved");
+      assert.equal(
+        solver.solve(solver.createPuzzleArr(invalidLengthPuzzle)),
+        "Puzzle cannot be solved"
+      );
       done();
     });
 
-    // Returns the expected solution for a valid, incomplete puzzle
     test("Returns the expected solution for an incomplete puzzle", function (done) {
-      let puzzle = puzzlesAndSolutions[0][0];
-      let solutionString = puzzlesAndSolutions[0][1];
-      assert.equal(solver.solve(puzzle), solutionString);
-
+      assert.equal(
+        solver.solve(solver.createPuzzleArr(validPuzzle)),
+        validSolution
+      );
       done();
     });
   });

@@ -10,6 +10,7 @@ module.exports = function (app) {
     const { puzzle } = req.body;
     if (!puzzle || puzzle == "")
       return res.json({ error: "Required field missing" });
+
     // Validate puzzle
     const validateString = solver.validate(puzzle);
     if (validateString !== true) return res.json({ error: validateString });
@@ -17,26 +18,26 @@ module.exports = function (app) {
     // Create puzzle Array from String
     const puzzleArr = solver.createPuzzleArr(puzzle);
 
-    // Compose the result
-    // const result = [];
-    // const compute = solver.solve(puzzleArr);
-    // console.log(compute);
-    // for (let row in compute) {
-    //   result.push(compute[row].join(""));
-    // }
-    // const solution = result.join("");
+    // Solve
     const solution = solver.solve(puzzleArr);
-    console.log(solution);
-    res.json({ solution });
+    if (solution === false) res.json({ error: "Puzzle cannot be solved" });
+    else res.json({ solution });
   });
 
   app.route("/api/check").post((req, res) => {
     // Fetch the variables
     const { puzzle, coordinate, value } = req.body;
 
+    if ((!puzzle, !coordinate, !value))
+      return res.json({ error: "Required field(s) missing" });
+
     // Validate puzzle
-    const validateString = solver.validate(puzzle);
-    if (validateString !== true) return res.json({ error: validateString });
+    const validateOne = solver.validate(puzzle);
+    if (validateOne !== true) return res.json({ error: validateOne });
+
+    // Validate coordinates and value
+    const validateTwo = solver.validateCoordinateAndValue(coordinate, value);
+    if (validateTwo !== true) return res.json({ error: validateTwo });
 
     // Create puzzle Array from String
     const puzzleArr = solver.createPuzzleArr(puzzle);
@@ -61,10 +62,10 @@ module.exports = function (app) {
       res.json({ valid: true });
     } else {
       let resultArr = [];
-      if (!rowResult) resultArr.push(["row"]);
-      if (!colResult) resultArr.push(["col"]);
-      if (!regionResult) resultArr.push(["region"]);
-      res.json({ valid: false, resultArr });
+      if (!rowResult) resultArr.push("row");
+      if (!colResult) resultArr.push("column");
+      if (!regionResult) resultArr.push("region");
+      res.json({ valid: false, conflict: resultArr });
     }
   });
 };

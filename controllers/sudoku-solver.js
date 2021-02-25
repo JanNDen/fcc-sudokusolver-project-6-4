@@ -8,6 +8,7 @@ class SudokuSolver {
     return true;
   }
 
+  // Check for valid characters and whether the coordinates are within bounds
   validateCoordinateAndValue(coordinate, value) {
     if (/^[A-I][1-9]$/.test(coordinate) === false) return "Invalid coordinate";
     if (/[^1-9]/.test(value)) return "Invalid value";
@@ -16,7 +17,7 @@ class SudokuSolver {
 
   // The check functions should be validating against the current state of the board.
   checkRowPlacement(puzzleArr, row, col, value) {
-    if (puzzleArr[row].indexOf(value) == -1) return true;
+    if (puzzleArr[row].indexOf(value.toString()) == -1) return true;
     else return false;
   }
 
@@ -42,6 +43,9 @@ class SudokuSolver {
 
   // The solve function should handle solving any given valid puzzle string
   solve(puzzleArr) {
+    // Verify puzzleArr
+    if (!Array.isArray(puzzleArr)) return "Puzzle cannot be solved";
+
     // Get the row and column of the next empty position
     const [row, col] = this.nextEmptyPosition(puzzleArr);
 
@@ -53,7 +57,7 @@ class SudokuSolver {
     // Let's try to place every possible digit to the current empty position
     for (let i = 1; i <= 9; i++) {
       i = i.toString();
-      console.log("Trying to fill [" + row + "," + col + "] with value " + i);
+      // console.log("Trying to fill [" + row + "," + col + "] with value " + i);
 
       // If this digit fulfills the sudoku conditions, we place it on the current position
       if (this.checkAllPlacement(puzzleArr, row, col, i)) {
@@ -72,7 +76,8 @@ class SudokuSolver {
 
   // Function to generate puzzle Array from puzzle String
   createPuzzleArr(puzzleString) {
-    if (this.validate(puzzleString) === true) {
+    const verifyPuzzleString = this.validate(puzzleString);
+    if (verifyPuzzleString === true) {
       let puzzleArr = [[], [], [], [], [], [], [], [], []];
       let currentRow = -1;
       const numberArr = puzzleString.split("");
@@ -83,7 +88,7 @@ class SudokuSolver {
         puzzleArr[currentRow].push(numberArr[i]);
       }
       return puzzleArr;
-    }
+    } else return verifyPuzzleString;
   }
 
   // Function to find next empty position in the puzzle
